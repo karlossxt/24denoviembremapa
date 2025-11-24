@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bloqueos 24 de noviembre de 2025 — Informe Oficial (23/11)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f8f9fa;
+    }
+    header {
+      background: #1a3a6c;
+      color: white;
+      padding: 1rem;
+      position: relative;
+    }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-text h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    .header-text p {
+      margin: 0.2rem 0 0;
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+    .logo-container {
+      flex-shrink: 0;
+      text-align: right;
+      min-width: 120px;
+    }
+    .logo-container img {
+      height: 60px;
+      max-width: 200px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .alert {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 4px;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+    }
+    .color-box {
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+    }
+    .red { background: #dc3545; }
+    .orange { background: #fd7e14; }
+    .gold { background: #ffc107; }
+    .green { background: #28a745; }
+    .blue { background: #0d6efd; }
+    
+    #map {
+      height: 500px;
+      margin: 1rem 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      z-index: 1;
+    }
+    
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .section h2 {
+      color: #1a3a6c;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e9ecef;
+    }
+    .points-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    .point-card {
+      border-left: 4px solid #1a3a6c;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    .point-card.confirmed { border-left-color: #dc3545; }
+    .point-card.probable { border-left-color: #fd7e14; }
+    .point-card.reported { border-left-color: #28a745; }
+    
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background: #343a40;
+      color: #adb5bd;
+      font-size: 0.9rem;
+    }
+    
+    @media print {
+      body { background: white; }
+      #map { height: 300px; }
+      .no-print { display: none; }
+    }
+
+    /* Estilos para el ícono personalizado del mapa */
+    .custom-icon {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div class="header-text">
+      <h1>🚨 Bloqueos del 24 de noviembre de 2025</h1>
+      <p><strong>Informe actualizado al 23 de noviembre de 2025 — 20:00 hrs</strong></p>
+      <p>Organizaciones: FNRCM • MAC • ANTAC</p>
+    </div>
+    <div class="logo-container">
+      <img 
+        src="logo.png" 
+        alt="El Rock de Todos los Días"
+        onerror="this.src='logo.jpg'; this.onerror=null;"
+      >
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="alert">
+    <strong>⚠️ ATENCIÓN:</strong> Movilización nacional programada para el lunes 24/11/2025. Se recomienda evitar desplazamientos no esenciales en corredores críticos.
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="color-box red"></div> Confirmado (ANTAC)</div>
+    <div class="legend-item"><div class="color-box orange"></div> Confirmado (estatal)</div>
+    <div class="legend-item"><div class="color-box gold"></div> Probable</div>
+    <div class="legend-item"><div class="color-box green"></div> Reportado (sin verificar)</div>
+    <div class="legend-item"><div class="color-box blue"></div> Acceso fronterizo</div>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="section">
+    <h2>🛣️ Carreteras y puntos críticos confirmados</h2>
+    <div class="points-grid">
+      <div class="point-card confirmed">
+        <strong>México–Toluca</strong><br>
+        <small>Tramo Lerma–Toluca (km 52–56)</small>
+      </div>
+      <div class="point-card confirmed">
+        <strong>México–Querétaro</strong><br>
+        <small>Peaje La Marquesa / Zona San Lucas</small>
+      </div>
+      <div class="point-card confirmed">
+        <strong>México–Pachuca</strong><br>
+        <small>Caseta Peñón (Ecatepec–Teotihuacán)</small>
+      </div>
+      <div class="point-card confirmed">
+        <strong>México–Puebla</strong><br>
+        <small>Caseta Amozoc / Zona Cholula</small>
+      </div>
+      <div class="point-card confirmed">
+        <strong>México–Cuernavaca</strong><br>
+        <small>Caseta Chapultepec / Lázaro Cárdenas</small>
+      </div>
+      <div class="point-card confirmed">
+        <strong>México–Acapulco</strong><br>
+        <small>Caseta Alpuyeca / Puente Ixtla</small>
+      </div>
+      <div class="point-card confirmed">
+        <strong>Naucalpan–Ecatepec</strong><br>
+        <small>Cruce Av. Central / Tlalnepantla</small>
+      </div>
+      <div class="point-card confirmed">
+        <strong>José López Portillo</strong><br>
+        <small>Cruce Circuito Exterior / Lomas Verdes</small>
+      </div>
+      <div class="point-card confirmed">
+        <strong>Gustavo Baz Prada</strong><br>
+        <small>Cruce Av. Mario Colín / Metro Cuautitlán</small>
+      </div>
+      <div class="point-card confirmed">
+        <strong>Circuito Exterior Mexiquense</strong><br>
+        <small>La Marquesa, Xaltocan, Tultepec</small>
+      </div>
+      <div class="point-card confirmed">
+        <strong>Blvd. Lomas Verdes</strong><br>
+        <small>Río de los Remedios / Periférico Norte</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>📍 Zonas urbanas de alto impacto</h2>
+    <ul>
+      <li><strong>Valle de México:</strong> Tlalnepantla, Ecatepec, Cuautitlán Izcalli, Naucalpan</li>
+      <li><strong>Terminales de carga:</strong> Toluca, Puebla, Querétaro, Cuernavaca</li>
+      <li><strong>Distribuidores críticos:</strong> San Antonio, Periférico–López Portillo, Peñón–La Paz</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>🗺️ Estados por nivel de confirmación</h2>
+    
+    <h3 style="color:#dc3545;">✅ Confirmados (ANTAC)</h3>
+    <p><strong>Chihuahua:</strong> Cd. Juárez, Cuauhtémoc, Chihuahua<br>
+    <strong>Michoacán:</strong> Morelia, Uruapan, Zitácuaro<br>
+    <strong>Jalisco:</strong> Guadalajara (Vallarta/Ejército), Tepatitlán, Lagos de Moreno<br>
+    <strong>Chiapas:</strong> Tuxtla, San Cristóbal, Tapachula (frontera sur)</p>
+
+    <h3 style="color:#fd7e14;">🟨 Probables (comunicado ANTAC)</h3>
+    <p>CDMX, Estado de México, Querétaro, Sonora, Zacatecas, Tamaulipas, Veracruz, Puebla</p>
+
+    <h3 style="color:#28a745;">🟢 Reportados (medios/sindicatos)</h3>
+    <p>Aguascalientes, Baja California, Campeche, Colima, Guanajuato, Nayarit, Quintana Roo, Yucatán</p>
+  </div>
+
+  <div class="section no-print">
+    <h2>📥 Descargas y compartición</h2>
+    <p>
+      <button onclick="window.print()" style="background:#1a3a6c;color:white;border:none;padding:0.6rem 1.2rem;border-radius:4px;cursor:pointer;margin-right:0.5rem;">
+        🖨️ Imprimir / Guardar como PDF
+      </button>
+      <a href="https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=https%3A%2F%2Fgist.gabriel-sand.in%2Fbloqueos24nov2025_actualizado.html" 
+         target="_blank" 
+         style="background:#28a745;color:white;text-decoration:none;padding:0.6rem 1.2rem;border-radius:4px;display:inline-block;">
+        📲 Descargar QR
+      </a>
+    </p>
+    <p><small>Enlace permanente: <a href="https://gist.gabriel-sand.in/bloqueos24nov2025_actualizado.html" target="_blank">gist.gabriel-sand.in/bloqueos24nov2025_actualizado.html</a></small></p>
+  </div>
+
+</div>
+
+<footer>
+  <p>Informe generado el 23 de noviembre de 2025 — 20:00 hrs • Datos: ANTAC, FNRCM, medios regionales verificados</p>
+  <p>Uso libre para fines informativos y comunitarios • No para desinformación</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // Mapa sin dependencias (usa OpenStreetMap)
+  const map = L.map('map').setView([23.0, -102.0], 5);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+
+  // Puntos críticos (carreteras)
+  const puntos = [
+    {name: "Méx–Toluca (km 54)", lat: 19.2600, lng: -99.4900, type: "confirmed", desc: "Tramo Lerma–Toluca"},
+    {name: "Méx–Querétaro", lat: 19.7720, lng: -99.1120, type: "confirmed", desc: "San Lucas"},
+    {name: "Méx–Pachuca", lat: 19.5120, lng: -98.9420, type: "confirmed", desc: "Caseta Peñón"},
+    {name: "Méx–Puebla", lat: 19.1830, lng: -98.2100, type: "confirmed", desc: "Amozoc"},
+    {name: "Méx–Cuernavaca", lat: 18.9090, lng: -99.2600, type: "confirmed", desc: "Alpuyeca"},
+    {name: "Naucalpan–Ecatepec", lat: 19.5300, lng: -99.2300, type: "confirmed", desc: "Río de los Remedios"},
+    {name: "López Portillo", lat: 19.5050, lng: -99.2200, type: "confirmed", desc: "Lomas Verdes"},
+    {name: "Gustavo Baz", lat: 19.5800, lng: -99.1900, type: "confirmed", desc: "Cuautitlán"},
+    {name: "Circuito Exterior", lat: 19.6320, lng: -99.1200, type: "confirmed", desc: "Tultepec"},
+    {name: "Tapachula", lat: 14.9070, lng: -92.2490, type: "confirmed", desc: "Frontera Sur", iconColor: "#0d6efd"},
+    {name: "Nogales", lat: 31.3020, lng: -110.9450, type: "probable", desc: "Frontera Norte", iconColor: "#0d6efd"},
+    {name: "Nuevo Laredo", lat: 27.4760, lng: -99.5080, type: "probable", desc: "Frontera Noreste", iconColor: "#0d6efd"},
+    {name: "Chetumal", lat: 18.5000, lng: -88.2980, type: "reported", desc: "Frontera Belice", iconColor: "#0d6efd"}
+  ];
+
+  puntos.forEach(p => {
+    const color = p.iconColor || 
+      (p.type === "confirmed" ? "#dc3545" : 
+       p.type === "probable" ? "#fd7e14" : "#28a745");
+    
+    const icon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="width:16px;height:16px;border-radius:50%;background:${color};"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
+    });
+    
+    L.marker([p.lat, p.lng], {icon: icon})
+      .bindPopup(`<b>${p.name}</b><br>${p.desc}<br><small>${p.type === "confirmed" ? "✅ Confirmado" : p.type === "probable" ? "🟨 Probable" : "🟢 Reportado"}</small>`)
+      .addTo(map);
+  });
+
+  // Centroides de estados (simplificados)
+  const estados = [
+    {name: "Chihuahua", lat: 28.633, lng: -106.069, type: "confirmed"},
+    {name: "Michoacán", lat: 19.566, lng: -101.707, type: "confirmed"},
+    {name: "Jalisco", lat: 20.659, lng: -103.349, type: "confirmed"},
+    {name: "Chiapas", lat: 16.752, lng: -93.129, type: "confirmed"},
+    {name: "CDMX", lat: 19.432, lng: -99.133, type: "probable"},
+    {name: "Edomex", lat: 19.317, lng: -99.670, type: "probable"},
+    {name: "Querétaro", lat: 20.588, lng: -100.387, type: "probable"},
+    {name: "Sonora", lat: 29.073, lng: -110.956, type: "probable"},
+    {name: "Zacatecas", lat: 22.771, lng: -102.583, type: "probable"},
+    {name: "Tamaulipas", lat: 24.266, lng: -98.862, type: "probable"},
+    {name: "Veracruz", lat: 19.174, lng: -96.134, type: "probable"},
+    {name: "Puebla", lat: 19.041, lng: -98.206, type: "probable"},
+    {name: "Guanajuato", lat: 21.019, lng: -101.257, type: "reported"},
+    {name: "Yucatán", lat: 20.967, lng: -89.624, type: "reported"}
+  ];
+
+  estados.forEach(e => {
+    const color = e.type === "confirmed" ? "#dc3545" : 
+                  e.type === "probable" ? "#fd7e14" : "#28a745";
+    L.circle([e.lat, e.lng], {
+      radius: 25000,
+      color: color,
+      fillColor: color,
+      fillOpacity: 0.1,
+      weight: 1
+    }).bindPopup(`<b>${e.name}</b><br>${e.type === "confirmed" ? "✅ Confirmado" : e.type === "probable" ? "🟨 Probable" : "🟢 Reportado"}`).addTo(map);
+  });
+</script>
+
+</body>
+</html>
